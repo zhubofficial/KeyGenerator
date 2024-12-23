@@ -113,60 +113,73 @@
     let timer = false;  // To track if the button is in cooldown
 
     document.getElementById('sendKeyButton').addEventListener("click", function() {
-      if (timer) {
-        alert("Please wait for 10 seconds before sending again.");
-        return;
-      }
+  if (timer) {
+    alert("Please wait for 10 seconds before sending again.");
+    return;
+  }
 
-      const username = document.getElementById('username').value.trim();
+  const username = document.getElementById('username').value.trim();
 
-      if (!username) {
-        alert("Please enter a username.");
-        return;
-      }
+  if (!username) {
+    alert("Please enter a username.");
+    return;
+  }
 
-      // Encrypt the username
-      const encryptedKey = encryptUsername(username);
-      const message = {
-        content: `Player: ${username}\nEncrypted Key: ${encryptedKey}`,
-        username: "Key Generator Bot",
-        avatar_url: ""
-      };
+  // Encrypt the username
+  const encryptedKey = encryptUsername(username);
+  const message = {
+    content: `Player: ${username}\nEncrypted Key: ${encryptedKey}`,
+    username: "Key Generator Bot",
+    avatar_url: "https://i.imgur.com/AfFp7pu.png"
+  };
 
-      // Send the encrypted key to the Discord webhook
-      fetch(webhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(message)
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log("Key sent to Discord:", data);
-        document.getElementById('sendKeyButton').innerText = "Key Sent!";
-        document.getElementById('username').value = '';  // Clear the input field
-      })
-      .catch(error => {
-        console.error("Error sending key:", error);
-        document.getElementById('sendKeyButton').innerText = "Error Sending Key!";
-      });
+  // Send the encrypted key to the Discord webhook
+  fetch(webhookUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(message)
+  })
+  .then(response => {
+    // Log the raw response for debugging purposes
+    console.log("Response Status:", response.status);
+    return response.text(); // Read as text (not as JSON)
+  })
+  .then(text => {
+    try {
+      const data = JSON.parse(text); // Try to parse the response text as JSON
+      console.log("Key sent to Discord:", data);
+      document.getElementById('sendKeyButton').innerText = "Key Sent!";
+      document.getElementById('username').value = '';  // Clear the input field
+    } catch (error) {
+      // If JSON parsing fails, log the raw response text
+      console.error("Error parsing response:", error);
+      console.log("Raw Response Text:", text);
+      document.getElementById('sendKeyButton').innerText = "Error Sending Key!";
+    }
+  })
+  .catch(error => {
+    console.error("Error sending key:", error);
+    document.getElementById('sendKeyButton').innerText = "Error Sending Key!";
+  });
 
-      // Set timer to disable the button for 10 seconds
-      timer = true;
-      let countdown = 10;
-      document.getElementById('sendKeyButton').innerText = `Cooldown: ${countdown}s`;
+  // Set timer to disable the button for 10 seconds
+  timer = true;
+  let countdown = 10;
+  document.getElementById('sendKeyButton').innerText = `Cooldown: ${countdown}s`;
 
-      const countdownInterval = setInterval(function() {
-        countdown--;
-        document.getElementById('sendKeyButton').innerText = `Cooldown: ${countdown}s`;
-        if (countdown <= 0) {
-          clearInterval(countdownInterval);
-          timer = false;
-          document.getElementById('sendKeyButton').innerText = "Send Key to Discord";
-        }
-      }, 1000);
-    });
+  const countdownInterval = setInterval(function() {
+    countdown--;
+    document.getElementById('sendKeyButton').innerText = `Cooldown: ${countdown}s`;
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+      timer = false;
+      document.getElementById('sendKeyButton').innerText = "Send Key to Discord";
+    }
+  }, 1000);
+});
+
 
     // Open the Discord link in a new tab when the new button is clicked
     document.getElementById('openDiscordButton').addEventListener("click", function() {
