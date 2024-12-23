@@ -112,7 +112,7 @@
 
     let timer = false;  // To track if the button is in cooldown
 
-    document.getElementById('sendKeyButton').addEventListener("click", function() {
+document.getElementById('sendKeyButton').addEventListener("click", function() {
   if (timer) {
     alert("Please wait for 10 seconds before sending again.");
     return;
@@ -142,21 +142,28 @@
     body: JSON.stringify(message)
   })
   .then(response => {
-    // Log the raw response for debugging purposes
-    console.log("Response Status:", response.status);
-    return response.text(); // Read as text (not as JSON)
-  })
-  .then(text => {
-    try {
-      const data = JSON.parse(text); // Try to parse the response text as JSON
-      console.log("Key sent to Discord:", data);
+    // Check if the response is empty (204 No Content)
+    if (response.status === 204) {
+      // Discord responds with 204 for a successful post but no response body
+      console.log("Key sent to Discord (no content in response).");
       document.getElementById('sendKeyButton').innerText = "Key Sent!";
       document.getElementById('username').value = '';  // Clear the input field
-    } catch (error) {
-      // If JSON parsing fails, log the raw response text
-      console.error("Error parsing response:", error);
-      console.log("Raw Response Text:", text);
-      document.getElementById('sendKeyButton').innerText = "Error Sending Key!";
+      return;  // Skip further processing since the response has no content
+    }
+
+    // If the response is not 204, attempt to read and parse it as text or JSON
+    return response.text(); // Read response as plain text
+  })
+  .then(text => {
+    // Only try to parse the response if there is text content
+    if (text) {
+      try {
+        const data = JSON.parse(text);  // Try to parse text as JSON if there's content
+        console.log("Key sent to Discord:", data);
+      } catch (error) {
+        console.error("Error parsing response:", error);
+        console.log("Raw Response Text:", text);  // Log the raw response text for debugging
+      }
     }
   })
   .catch(error => {
@@ -179,6 +186,7 @@
     }
   }, 1000);
 });
+
 
 
     // Open the Discord link in a new tab when the new button is clicked
